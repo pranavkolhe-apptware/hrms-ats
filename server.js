@@ -1,8 +1,16 @@
 const express = require('express');
 const pool = require('./db');
+const cors = require('cors');
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
+
+  
 
 // Add a new resource request
 app.post('/resource-requests', async (req, res) => {
@@ -113,10 +121,6 @@ app.put('/resource-requests',async (req, res)=>{
     }
 
 });
-
-
-
-
 
 
 
