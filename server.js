@@ -14,22 +14,22 @@ app.use(cors({
 
 // Add a new resource request
 app.post('/resource-requests', async (req, res) => {
-    const { job_role, no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience } = req.body;
+    const { job_role, no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience,manager_name } = req.body;
 
     try {
         const result = await pool.query(
             `INSERT INTO resource_requests 
-            (job_role,no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience) 
-            VALUES ($1, $2, $3, $4, $5, $6) 
+            (job_role,no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience,manager_name) 
+            VALUES ($1, $2, $3, $4, $5, $6,$7) 
             RETURNING *`,
-            [job_role, no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience]
+            [job_role, no_of_positions, primary_tech_stack, secondary_tech_stack, additional_details,experience,manager_name]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error("PostgreSQL Error :---", error);
         console.error("PostgreSQL Error Code : ---", error.code);
         if (error.code === '23505') {
-            res.status(400).json({ error: "Duplicate job request exists!" });
+            res.status(409).json({ error: "Duplicate job request exists!" });
         } else {
             console.error(error);
             res.status(500).json({ error: "Server error" });
@@ -96,7 +96,7 @@ app.delete('/resource-requests', async (req, res) => {
 
 app.put('/resource-requests',async (req, res)=>{
     const { id } = req.query;
-    const {job_role,no_of_positions,primary_tech_stack,secondary_tech_stack,additional_details,experience} = req.body;
+    const {job_role,no_of_positions,primary_tech_stack,secondary_tech_stack,additional_details,experience,manager_name} = req.body;
 
     if(!id){
         return res.status(400).json({error : "ID is required"});
@@ -105,9 +105,9 @@ app.put('/resource-requests',async (req, res)=>{
     try{
         const result = await pool.query(
             `UPDATE resource_requests SET job_role = $1, no_of_positions = $2,
-            primary_tech_stack = $3, secondary_tech_stack = $4, additional_details = $5, experience= $6 WHERE id = $7 
+            primary_tech_stack = $3, secondary_tech_stack = $4, additional_details = $5, experience= $6 ,manager_name = $7 WHERE id = $8 
             RETURNING *`,
-            [job_role,no_of_positions,primary_tech_stack,secondary_tech_stack,additional_details,experience,id]
+            [job_role,no_of_positions,primary_tech_stack,secondary_tech_stack,additional_details,experience,manager_name,id]
         );
 
         if(result.rowCount === 0){
