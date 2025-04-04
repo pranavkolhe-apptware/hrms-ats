@@ -125,7 +125,38 @@ app.put('/resource-requests',async (req, res)=>{
 
 
 
+// Update resource request status
+app.patch('/resource-requests/status', async (req, res) => {
+    const { id } = req.query;
+    const { status } = req.body;
 
+    if (!id) {
+        return res.status(400).json({ error: "ID is required" });
+    }
+
+    if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE resource_requests SET status = $1 WHERE id = $2 RETURNING *`,
+            [status, id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Resource request not found" });
+        }
+
+        res.json({ 
+            message: "Resource request status updated successfully", 
+            updated: result.rows[0] 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" }); 
+    }
+});
 
 
 
